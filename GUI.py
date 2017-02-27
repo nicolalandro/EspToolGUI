@@ -7,7 +7,11 @@ from PyQt4.QtGui import QFileDialog
 
 import serial.tools.list_ports
 
+from PyQt4.QtGui import QMessageBox
+
 absolute_path = os.path.dirname(os.path.abspath(__file__))
+
+
 # print (absolute_path)
 
 
@@ -27,8 +31,16 @@ class MainWindow(QtGui.QMainWindow):
     def flash_firmware(self):
         port = str(self.portComboBox.currentText())
         firmware_path = str(self.pathTextEdit.toPlainText())
-        erase(port)
-        flash(port, firmware_path)
+        if len(port) > 0 and len(firmware_path) > 0:
+            erase(port)
+            flash(port, firmware_path)
+        else:
+            message_box = QtGui.QMessageBox()
+            message_box.setIcon(QMessageBox.Critical)
+            message_box.setText("Some field are unselected")
+            message_box.setWindowTitle("Error")
+            message_box.setStandardButtons(QMessageBox.Ok)
+            message_box.exec_()
 
     def select_firmware(self):
         self.pathTextEdit.setText(QFileDialog.getOpenFileName())
