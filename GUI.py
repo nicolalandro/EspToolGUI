@@ -1,25 +1,35 @@
 import os
 
 import sys
-from PyQt4 import QtGui
 
+from PyQt4 import QtGui
 from PyQt4.QtGui import QFileDialog
 
 import serial.tools.list_ports
 
+
+def erase(port):
+    erase1 = "sudo python esptool.py --port "
+    erase2 = " --baud 115200 erase_flash"
+    erase_string = erase1 + port + erase2
+    print(erase_string)
+    os.system(erase_string)
+
+
+def flash(port, firmware_path):
+    flash1 = "sudo python esptool.py --port "
+    flash2 = " write_flash -fm dio -fs 32m 0x00000 "
+    flash_string = flash1 + port + flash2 + firmware_path
+    print (flash_string)
+    os.system(flash_string)
+
+
 class MainWindow(QtGui.QMainWindow):
     def flash_firmware(self):
-        erase1 = "sudo python esptool.py --port "
-        erase2 = " --baud 115200 erase_flash"
-        erase = erase1 + str(self.portComboBox.currentText()) + erase2
-        # print(erase)
-        os.system(erase)
-
-        flash1 = "sudo python esptool.py --port"
-        flash2 = " write_flash -fm dio -fs 32m 0x00000 "
-        flash = flash1 + str(self.portComboBox.currentText()) + flash2 + str(self.pathTextEdit.toPlainText())
-        # print (flash)
-        os.system(flash)
+        port = str(self.portComboBox.currentText())
+        firmware_path = str(self.pathTextEdit.toPlainText())
+        erase(port)
+        flash(port, firmware_path)
 
     def select_firmware(self):
         self.pathTextEdit.setText(QFileDialog.getOpenFileName())
@@ -30,36 +40,36 @@ class MainWindow(QtGui.QMainWindow):
         self.resize(500, 100)
         self.setWindowTitle('ESP Tool')
 
-        cWidget = QtGui.QWidget(self)
+        c_widget = QtGui.QWidget(self)
 
-        grid = QtGui.QGridLayout(cWidget)
+        grid = QtGui.QGridLayout(c_widget)
 
-        vBoxFlashing = QtGui.QVBoxLayout()
-        buttonFlashing = QtGui.QPushButton("Flash Firmware")
-        buttonFlashing.clicked.connect(self.flash_firmware)
-        vBoxFlashing.addWidget(buttonFlashing)
+        v_box_flashing = QtGui.QVBoxLayout()
+        button_flashing = QtGui.QPushButton("Flash Firmware")
+        button_flashing.clicked.connect(self.flash_firmware)
+        v_box_flashing.addWidget(button_flashing)
 
-        vBoxSelectFirmware = QtGui.QVBoxLayout()
-        buttonSelectFirmware = QtGui.QPushButton("Select Firmware")
-        buttonSelectFirmware.clicked.connect(self.select_firmware)
-        vBoxSelectFirmware.addWidget(buttonSelectFirmware)
+        v_box_select_firmware = QtGui.QVBoxLayout()
+        button_select_firmware = QtGui.QPushButton("Select Firmware")
+        button_select_firmware.clicked.connect(self.select_firmware)
+        v_box_select_firmware.addWidget(button_select_firmware)
 
-        self.pathTextEdit = QtGui.QTextEdit(cWidget)
+        self.pathTextEdit = QtGui.QTextEdit(c_widget)
         self.pathTextEdit.setMaximumSize(500, 30)
 
         label = QtGui.QLabel("Select shield connected Port")
         self.portComboBox = QtGui.QComboBox()
         for p in serial.tools.list_ports.comports():
-            self.portComboBox.addItem("/dev/"+p.name)
+            self.portComboBox.addItem("/dev/" + p.name)
 
         grid.addWidget(label, 0, 0)
         grid.addWidget(self.portComboBox, 0, 1, 1, 2)
         grid.addWidget(self.pathTextEdit, 1, 0, 1, 2)
-        grid.addLayout(vBoxSelectFirmware, 1, 2)
-        grid.addLayout(vBoxFlashing, 2, 0, 3, 0)
+        grid.addLayout(v_box_select_firmware, 1, 2)
+        grid.addLayout(v_box_flashing, 2, 0, 3, 0)
 
-        cWidget.setLayout(grid)
-        self.setCentralWidget(cWidget)
+        c_widget.setLayout(grid)
+        self.setCentralWidget(c_widget)
 
 
 app = QtGui.QApplication(sys.argv)
