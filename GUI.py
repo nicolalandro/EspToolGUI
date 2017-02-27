@@ -7,20 +7,19 @@ from PyQt4.QtGui import QFileDialog
 
 import serial.tools.list_ports
 
+absolute_path = os.path.dirname(os.path.abspath(__file__))
+# print (absolute_path)
+
 
 def erase(port):
-    erase1 = "sudo python esptool.py --port "
-    erase2 = " --baud 115200 erase_flash"
-    erase_string = erase1 + port + erase2
-    print(erase_string)
+    erase_string = "sudo python " + absolute_path + "/esptool.py --port " + port + " --baud 115200 erase_flash"
+    # print(erase_string)
     os.system(erase_string)
 
 
 def flash(port, firmware_path):
-    flash1 = "sudo python esptool.py --port "
-    flash2 = " write_flash -fm dio -fs 32m 0x00000 "
-    flash_string = flash1 + port + flash2 + firmware_path
-    print (flash_string)
+    flash_string = "sudo python " + absolute_path + "esptool.py --port " + port + " write_flash -fm dio -fs 32m 0x00000 " + firmware_path
+    # print (flash_string)
     os.system(flash_string)
 
 
