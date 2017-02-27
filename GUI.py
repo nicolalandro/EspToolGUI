@@ -5,6 +5,7 @@ from PyQt4 import QtGui
 
 from PyQt4.QtGui import QFileDialog
 
+import serial.tools.list_ports
 
 class MainWindow(QtGui.QMainWindow):
     def flash_firmware(self):
@@ -48,7 +49,8 @@ class MainWindow(QtGui.QMainWindow):
 
         label = QtGui.QLabel("Select shield connected Port")
         self.portComboBox = QtGui.QComboBox()
-        self.portComboBox.addItem("/dev/ttyUSB0")
+        for p in serial.tools.list_ports.comports():
+            self.portComboBox.addItem("/dev/"+p.name)
 
         grid.addWidget(label, 0, 0)
         grid.addWidget(self.portComboBox, 0, 1, 1, 2)
