@@ -10,13 +10,14 @@ import serial.tools.list_ports
 from PyQt4.QtGui import QMessageBox
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
+bound_rate_array = [115200, 9600, 57600, 230400, 460800, 921600]
 
 
 # print (absolute_path)
 
 
-def erase(port):
-    erase_string = "sudo python " + absolute_path + "/esptool.py --port " + port + " --baud 115200 erase_flash"
+def erase(port, bound_rate):
+    erase_string = "sudo python " + absolute_path + "/esptool.py --port " + port + " --baud " + bound_rate + " erase_flash"
     # print(erase_string)
     os.system(erase_string)
 
@@ -31,8 +32,10 @@ class MainWindow(QtGui.QMainWindow):
     def flash_firmware(self):
         port = str(self.portComboBox.currentText())
         firmware_path = str(self.pathTextEdit.toPlainText())
+        bound_rate = str(self.boundRateComboBox.currentText())
+
         if len(port) > 0 and len(firmware_path) > 0:
-            erase(port)
+            erase(port, bound_rate)
             flash(port, firmware_path)
         else:
             message_box = QtGui.QMessageBox()
@@ -68,16 +71,23 @@ class MainWindow(QtGui.QMainWindow):
         self.pathTextEdit = QtGui.QTextEdit(c_widget)
         self.pathTextEdit.setMaximumSize(500, 30)
 
-        label = QtGui.QLabel("Select shield connected Port")
+        labelPort = QtGui.QLabel("Select shield connected Port")
         self.portComboBox = QtGui.QComboBox()
         for p in serial.tools.list_ports.comports():
             self.portComboBox.addItem("/dev/" + p.name)
 
-        grid.addWidget(label, 0, 0)
+        labelBoundRate = QtGui.QLabel("Select shield Bound Rate")  # TODO usare nella creazione della stringa
+        self.boundRateComboBox = QtGui.QComboBox()
+        for brate in bound_rate_array:
+            self.boundRateComboBox.addItem(str(brate))
+
+        grid.addWidget(labelPort, 0, 0)
         grid.addWidget(self.portComboBox, 0, 1, 1, 2)
-        grid.addWidget(self.pathTextEdit, 1, 0, 1, 2)
-        grid.addLayout(v_box_select_firmware, 1, 2)
-        grid.addLayout(v_box_flashing, 2, 0, 3, 0)
+        grid.addWidget(labelBoundRate, 1, 0)
+        grid.addWidget(self.boundRateComboBox, 1, 1, 1, 2)
+        grid.addWidget(self.pathTextEdit, 2, 0, 1, 2)
+        grid.addLayout(v_box_select_firmware, 2, 2)
+        grid.addLayout(v_box_flashing, 3, 0, 3, 0)
 
         c_widget.setLayout(grid)
         self.setCentralWidget(c_widget)
